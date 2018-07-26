@@ -32,17 +32,19 @@ export function createEvent(token, data) {
   client.setCredentials(token);
 
   const calendar = google.calendar({version: 'v3', auth: client});
-  console.log(data);
+  ;
 
-  let start = new Date(data.date)
-  let time = new Date(data.time);
+  let start = new Date(data.time)
+  let time = new Date(data.time)
+  let subject = data.event
+
   start.setHours(time.getHours());
   start.setMinutes(time.getMinutes());
   // console.log(new Date(Date.now() + 90000).toISOString());
   calendar.events.insert({
     calendarId: 'primary',
     resource: {
-      summary: data.summary,
+      summary: subject,
       start: {
         dateTime: start.toISOString()
       },
@@ -51,8 +53,8 @@ export function createEvent(token, data) {
       }
     }
   }, (err, resp) => {
-    console.log(resp);
-    console.log(token);
+    console.log('RESPONSE: ', resp);
+    console.log('TOKEN', token);
     // axios(`https://accounts.google.com/o/oauth2/revoke?token=${token.access_token}`)
   })
 }

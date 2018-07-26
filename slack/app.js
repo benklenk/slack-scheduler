@@ -17,19 +17,20 @@ app.post('/slack', (req, res) => {
   let payload = JSON.parse(req.body.payload)
   let user = payload.user.id
   let data = JSON.parse(payload.actions[0].value)
-
+  console.log('DATATATAT', data)
   User.findOne({ slackId: user })
     .then((u) => {
+      console.log('@@@@@@@@@', u)
       createEvent(u.tokens, data)
     })
   // console.log(data, user);
-  res.send('OKAY');
+  res.end();
 })
 
 app.get("/google/callback", (req, res) => {
 
   getToken(req.query.code, (err, token) => {
-    console.log("TOKEN", token)
+    console.log("TOKEN: @@", token)
 
     let user = new User({
       slackId: req.query.state,

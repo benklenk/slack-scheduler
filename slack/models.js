@@ -2,7 +2,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
-if(!process.env.MONGODB_URI) throw new Error('uri missing');
+if (!process.env.MONGODB_URI)
+  throw new Error('uri missing');
 
 mongoose.connect(process.env.MONGODB_URI)
 
@@ -15,11 +16,11 @@ var TaskModel = new Schema({
     type: Date,
     required: true
   },
-  eventID:{
+  eventID: {
     type: String
   },
   requesterID: {
-    type: String,
+    type: String
   }
 });
 
@@ -32,24 +33,26 @@ var MeetingSchema = new Schema({
     type: Date,
     required: true
   },
-  InviteesList: [{
+  InviteesList: [
+    {
       type: ObjectId,
       required: true,
       ref: 'User'
-    }],
+    }
+  ],
   subject: {
     type: String
   },
-  location:{
+  location: {
     type: String
   },
-  meetingLength:{
+  meetingLength: {
     type: Number
   },
-  Status:{
+  Status: {
     type: String
   },
-  CreatedAt:{
+  CreatedAt: {
     type: Date
   },
   requesterID: {
@@ -66,33 +69,31 @@ var UserModel = new Schema({
     type: String,
     required: true
   },
-  slackUsername:{
+  slackUsername: {
     type: String
   },
   slackEmail: {
-    type: String,
+    type: String
   },
-  slackDMiD:{
+  slackDMiD: {
     type: []
   }
 });
 
-
 var RequestModel = new Schema({
   eventId: {
-    type: String,
+    type: String
   },
   inviteeId: {
-    type: String,
+    type: String
   },
-  requestID:{
+  requestID: {
     type: String
   },
   Status: {
-    type: String,
+    type: String
   }
 });
-
 
 var User = mongoose.model('User', UserModel);
 var Task = mongoose.model('Task', TaskModel);
@@ -100,8 +101,8 @@ var Meeting = mongoose.model('Meeting', MeetingSchema);
 var Request = mongoose.model('Request', RequestModel);
 
 module.exports = {
-  Meeting : Meeting,
-  User : User,
+  Meeting: Meeting,
+  User: User,
   Task: Task,
   Request: Request
 };

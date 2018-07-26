@@ -4,7 +4,7 @@ const {RTMClient, WebClient} = require('@slack/client');
 const bodyParser = require('body-parser')
 const express = require('express')
 var app = express()
-import { User } from './models'
+import {User} from './models'
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
@@ -18,28 +18,31 @@ rtm.start();
 // const currentTime = new Date().toTimeString();
 
 rtm.on('message', async (event) => {
-  console.log('TEXT: ' + event.text)
-  console.log('BOT_ID: ' + event.bot_id)
-
-  if (event.bot_id)
-    return
-
-  let user = await User.findOne({slackId: event.user});
-  if (!user) {
-    return rtm.sendMessage(`Hey buddy why don\'t you sign in before you try that shit: ${getAuthUrl(event.user)}`, event.channel)
-  } else if (user.tokens.expiry_date < Date.now() + 100000000) {
-    let token = refreshToken(user.tokens)
-    console.log("USER TOKEN: ", token)
-    user.tokens = token
-    await user.save()
-  }
-  await runSession(event.user, event.text).then((resp) => {
-    if (!resp.allRequiredParamsPresent) {
+  // console.log('TEXT: ' + event.text)
+  // console.log('BOT_ID: ' + event.bot_id)
+  try {
+    if (event.bot_id)
+      return
+    console.log(event.user)
+    let user = await User.findOne({slackId: event.user});
+    if (!user) {
+      return rtm.sendMessage(`Hey buddy why don\'t you sign in before you try that shit: ${getAuthUrl(event.user)}`, event.channel)
+    } else if (user.tokens.expiry_date < Date.now() + 100000000) {
+      let token = await refreshToken(user.tokens)
+      console.log("USER TOKEN: ", token)
+      user.tokens = token
+      await user.save()
+    }
+    let resp = await runSession(event.user, event.text)
+    // console.log('@@@@@@', resp)
+    if (!resp.allRequiredParamsPresent || Object.keys(resp.parameters.fields).length === 0) {
       rtm.sendMessage(resp.fulfillmentText, event.channel).catch(console.error)
     } else {
 
-
-      let data = {time: new Date(resp.parameters.fields.date.stringValue), event: resp.parameters.fields.Subject.stringValue};
+      let data = {
+        time: new Date(resp.parameters.fields.date.stringValue),
+        event: resp.parameters.fields.Subject.stringValue
+      };
       web.chat.postMessage({
         channel: event.channel,
         'text': 'Add an event on ' + new Date(resp.parameters.fields.date.stringValue) + ' titled ' + resp.parameters.fields.Subject.stringValue + '?',
@@ -47,6 +50,7 @@ rtm.on('message', async (event) => {
           {
             "fallback": "You tried your best, good job!",
             "color": "#3AA3E3",
+            "callback_id": "confirm_button",
             "attachment_type": "default",
             "actions": [
               {
@@ -54,6 +58,7 @@ rtm.on('message', async (event) => {
                 "text": "Confirm",
                 "type": "button",
                 "value": JSON.stringify(data)
+
               }, {
                 "name": "option",
                 "text": "Nevermind",
@@ -64,9 +69,9 @@ rtm.on('message', async (event) => {
             ]
           }
         ]
-      }).then(res => {
-        console.log("MESSAGE: " + res.ts)
-      }).catch(console.error)
+      })
     }
-  })
+  } catch (e) {
+    console.log(e)
+  }
 })
