@@ -25,11 +25,11 @@ var TaskModel = new Schema({
 });
 
 var MeetingSchema = new Schema({
-  day: {
+  startTime: {
     type: Date,
     required: true
   },
-  time: {
+  endTime: {
     type: Date,
     required: true
   },
@@ -46,16 +46,13 @@ var MeetingSchema = new Schema({
   location: {
     type: String
   },
-  meetingLength: {
-    type: Number
-  },
-  Status: {
-    type: String
-  },
   CreatedAt: {
     type: Date
   },
   requesterID: {
+    type: String
+  },
+  googleID: {
     type: String
   }
 });

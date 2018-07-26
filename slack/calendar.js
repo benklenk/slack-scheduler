@@ -1,6 +1,7 @@
 import {google} from 'googleapis';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar']
+import { Model } from './models'
 
 function getClient() {
   return new google.auth.OAuth2(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.NGROK + "/google/callback");
@@ -26,20 +27,21 @@ export function refreshToken(token) {
   })
 };
 
-export function createEvent(token, data) {
+export function createEvent(token, data, user) {
   console.log("IN CREATE EVENT");
   let client = getClient();
   client.setCredentials(token);
 
-  const calendar = google.calendar({version: 'v3', auth: client});
-  ;
+  const calendar = google.calendar({version: 'v3', auth: client})
 
-  let start = new Date(data.time)
-  let time = new Date(data.time)
-  let subject = data.event
+  console.log(data)
+  let date = new Date(data.date)
+  let start = new Date(data.startTime)
+  let end = new Date(data.endTime)
+  let subject = data.subject
 
-  start.setHours(time.getHours());
-  start.setMinutes(time.getMinutes());
+  start.setDate(date.getDate());
+  end.setDate(date.getDate());
   // console.log(new Date(Date.now() + 90000).toISOString());
   calendar.events.insert({
     calendarId: 'primary',
@@ -49,12 +51,29 @@ export function createEvent(token, data) {
         dateTime: start.toISOString()
       },
       end: {
-        dateTime: new Date(start.getTime() + 1800000).toISOString()
+        dateTime: end.toISOString()
       }
     }
   }, (err, resp) => {
-    console.log('RESPONSE: ', resp);
-    console.log('TOKEN', token);
+    if(err){
+      console.log("ERROR CREATING EVENT", err);
+    }else{
+      console.log('BINGO HERE IT IS  ', resp)
+      // var newMeeting = new Meeting({
+      //   startTime: data.startTime,
+      //   endTime: data.endTIme,
+      //   InviteesList: data.invitees
+      //   subject:
+      //   location: data["location"]? data['location'] : ''
+      //   CreatedAt: new Date(),
+      //   requesterID: user.slackId,
+      //   googleID: ''
+      // })
+
+      // newMeeting.save().then(()=> console.log("saved"))
+
+    }
+
     // axios(`https://accounts.google.com/o/oauth2/revoke?token=${token.access_token}`)
   })
 }

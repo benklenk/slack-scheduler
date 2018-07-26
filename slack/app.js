@@ -21,7 +21,7 @@ app.post('/slack', (req, res) => {
   User.findOne({ slackId: user })
     .then((u) => {
       console.log('@@@@@@@@@', u)
-      createEvent(u.tokens, data)
+      createEvent(u.tokens, data, u)
     })
   // console.log(data, user);
   res.end();

@@ -34,18 +34,30 @@ rtm.on('message', async (event) => {
       await user.save()
     }
     let resp = await runSession(event.user, event.text)
-    // console.log('@@@@@@', resp)
+
     if (!resp.allRequiredParamsPresent || Object.keys(resp.parameters.fields).length === 0) {
       rtm.sendMessage(resp.fulfillmentText, event.channel).catch(console.error)
+      console.log('999999999   ', resp.parameters.fields.startTime)
     } else {
 
       let data = {
-        time: new Date(resp.parameters.fields.date.stringValue),
-        event: resp.parameters.fields.Subject.stringValue
+        startTime: resp.parameters.fields.startTime.stringValue,
+        endTime: resp.parameters.fields.endTime.stringValue,
+        subject: resp.parameters.fields.subject.stringValue,
+        // invitees: resp.parameters.fields.invitees.listvalue.values,
+        meetings: resp.parameters.fields.meetings.stringValue,
+        date: resp.parameters.fields.date.stringValue
+        // meetingType: ,
       };
+      console.log('THIS IS WHAT THE DATE LOOKS LIKE: ', data.startTime)
+      console.log('THIS IS WHAT THE DATE LOOKS LIKE IN RESP: ', resp.parameters.fields.startTime.stringValue)
+      console.log(new Date(JSON.stringify(data.endTime)), new Date(JSON.stringify(data.startTime)))
+      // console.log('##########    ', JSON.stringify(resp.parameters.fields.endTime.listValue.values[0].stringValue))
+      // console.log('33333333  ', resp.parameters.fields.startTime.listValue)
       web.chat.postMessage({
         channel: event.channel,
-        'text': 'Add an event on ' + new Date(resp.parameters.fields.date.stringValue) + ' titled ' + resp.parameters.fields.Subject.stringValue + '?',
+        // 'text': 'Add an event on ' + new Date(resp.parameters.fields..stringValue) + ' titled ' + resp.parameters.fields.Subject.stringValue + '?',
+        'text': 'bingo',
         "attachments": [
           {
             "fallback": "You tried your best, good job!",
@@ -58,7 +70,6 @@ rtm.on('message', async (event) => {
                 "text": "Confirm",
                 "type": "button",
                 "value": JSON.stringify(data)
-
               }, {
                 "name": "option",
                 "text": "Nevermind",
